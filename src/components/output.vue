@@ -14,12 +14,11 @@
                     <th scope="col">Тарифы</th>
                     <th scope="col">Адрес</th>
                     <th scope="col">Номер телефона</th>
-                    <th scope="col">Даты начала и окончания</th>
+                    <th scope="col">Даты</th>
                     <th scope="col">Стоимость</th>
-                    <th scope="col">Статус</th>
                     <th scope="col">Комментарий для курьера</th>
                     <th scope="col">Внутренний комментарий</th>
-                    <th scope="col">Когда заканчивается</th>
+                    <th scope="col">Статус</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -51,13 +50,13 @@
                         <div>Стоимость: {{value.order_sum}}</div>
                         <div>Скидка: {{value.discount}}</div>
                         <div>Оплачено: {{value.order_payed}}</div>
+                        <div>Состояние: {{value.pay_status}}</div>
                     </td>
-                    <td>{{value.pay_status}}</td>
                     <td>{{value.courier_comment}}</td>
                     <td>{{value.inner_comment}}</td>
                     <td>
                         <div v-for="(date, index) in value.dates">
-                            Заканчивается через {{ displayDifference(date.end_date) }} дней.
+                            {{ displayDifference(date) }}
                             <hr v-if="index != value.dates.length - 1">
                         </div>
                     </td>
@@ -83,13 +82,44 @@ const year = newDate.getFullYear()
 
 const currentDateString = `${year}-${month}-${day}`
 const currentDate = new Date(currentDateString)
-//console.log("current date: " + currentDate)
 
+function russianDateDisplay(num) {
+    let output = ''
+    if (num == 1) {
+        output = ' день'
+    } else if (1>num>5) {
+        output = ' дня'
+    } else {
+        output = ' дней' 
+    }
+    return output
+}
+
+//end date display funtcion:
 function displayDifference(currentValue) {
-    const innterDate = Date.parse(currentValue)
-    const diff = innterDate-currentDate
-    const days = Math.floor(diff / (24*60*60*1000))
-    return days
+    const endDate = Date.parse(currentValue.end_date)
+    const startDate = Date.parse(currentValue.start_date)
+    let outputString = ''
+    if (startDate > currentDate) {
+        const diff = startDate-currentDate
+        const days = Math.floor(diff / (24*60*60*1000))
+        outputString = 'Начинается через ' + days + russianDateDisplay(days)
+    } else if (endDate > currentDate) {
+        const diff = endDate-currentDate
+        const days = Math.floor(diff / (24*60*60*1000))
+        if (days == 1) {
+            outputString = 'Заканчивается завтра'
+        } else {
+            outputString = 'Заканчивается через ' + days + russianDateDisplay(days)
+        }  
+    } else if (endDate < currentDate) {
+        const diff = currentDate-endDate
+        const days = Math.floor(diff / (24*60*60*1000))
+        outputString = 'Закончилось ' + days + russianDateDisplay(days) + ' назад'
+    } else {
+        outputString = 'Заканчивается сегодня'
+    }
+    return outputString
 }
 
 
@@ -104,10 +134,16 @@ table {
     min-width: 1600px;
 }
 
+td {
+    padding: 5px;
+    text-align: center;
+}
+
 td.idColor { background-color: lightgreen; }
 
 hr {
   color: lightgray; 
+  margin: 5px;
 }
 
 </style>
