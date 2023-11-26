@@ -72,7 +72,7 @@
                             <hr v-if="index != value.dates.length - 1">
                         </div>
                     </td>
-                    <td>
+                    <td style="min-width:150px;">
                         <!--Значения объединены как в примере-->
                         <div>Стоимость: {{value.order_sum}}</div>
                         <div>Скидка: {{value.discount}}</div>
